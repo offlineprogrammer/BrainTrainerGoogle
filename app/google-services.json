@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "927706351134",
+    "firebase_url": "https://braintrainer-3587f.firebaseio.com",
+    "project_id": "braintrainer-3587f",
+    "storage_bucket": "braintrainer-3587f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927706351134:android:75f324b563ce42dcd0100f",
+        "android_client_info": {
+          "package_name": "com.offlineprogrammer.braintrainer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "927706351134-tcua3j0gp5v56or9vtvubir42khr1rhu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.offlineprogrammer.braintrainer",
+            "certificate_hash": "49b09f5dcefe9bdc211315ed27e921c6e3896d9c"
+          }
+        },
+        {
+          "client_id": "927706351134-bq7sp7nkhgjm7k9adacrk0mm3767k5et.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHvdiGf8PibbsmkKVUVB3GioNpQpHlQ70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "927706351134-bq7sp7nkhgjm7k9adacrk0mm3767k5et.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
