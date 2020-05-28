@@ -146,6 +146,12 @@
         ads:adUnitId="@string/main_adMob_unit_id">
     </com.google.android.gms.ads.AdView>
 
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/viewKonfetti"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
 
 
 

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -25,6 +26,9 @@ import com.offlineprogrammer.braintrainer.answer.OnAnswerListener;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import nl.dionsegijn.konfetti.KonfettiView;
+import nl.dionsegijn.konfetti.models.Shape;
+
 public class MainActivity extends AppCompatActivity implements OnAnswerListener {
     private static final String TAG = "MainActivity";
     RecyclerView mRecyclerView;
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
     CountDownTimer countDownTimer = null;
     private com.google.android.gms.ads.AdView adView;
     private FirebaseAnalytics mFirebaseAnalytics;
+    KonfettiView viewKonfetti;
 
 
     @Override
@@ -46,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
+        viewKonfetti = findViewById(R.id.viewKonfetti);
         mRecyclerView = findViewById(R.id.answers_recyclerview);
         GridLayoutManager mGridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
@@ -87,6 +92,22 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         adView.loadAd(adRequest);
     }
 
+    private void celebratCompletion() {
+        viewKonfetti.bringToFront();
+        viewKonfetti.setTranslationZ(1);
+        viewKonfetti.build()
+                .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA,Color.RED)
+                .setDirection(0.0, 359.0)
+                .setSpeed(1f, 5f)
+                .setFadeOutEnabled(true)
+                .setTimeToLive(4000L)
+                .addShapes(Shape.Square.INSTANCE, Shape.Circle.INSTANCE)
+                .addSizes(new nl.dionsegijn.konfetti.models.Size(10, 20))
+                .setPosition(viewKonfetti.getX() + viewKonfetti.getWidth()/2, viewKonfetti.getY()+viewKonfetti.getHeight()/2)
+                .burst(600);
+        //.streamFor(300, 5000L);
+    }
+
     private void playTheGame() {
         mFirebaseAnalytics.logEvent("play_theGame", null);
         myGame = new TheGame("+");
@@ -114,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
             @Override
             public void onFinish() {
                 timerTextView.setText("0s");
-
+                celebratCompletion();
                 goButton.setImageResource(R.drawable.playagain);
                 myGame.setActive(false);
                 mFirebaseAnalytics.logEvent("theGame_Finished", null);
