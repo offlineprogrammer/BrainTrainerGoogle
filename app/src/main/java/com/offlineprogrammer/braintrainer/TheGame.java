@@ -11,6 +11,7 @@ public class TheGame {
     public  int a;
     public  int b;
     private int score;
+    private int scorePercentage;
     private int numberOfQuestions;
     ArrayList<Integer> answers = new ArrayList<Integer>();
 
@@ -116,6 +117,12 @@ public class TheGame {
 
     public void setNumberOfQuestions(int numberOfQuestions) {
         this.numberOfQuestions = numberOfQuestions;
+    }
+
+    public int getScorePercentage(){
+
+        scorePercentage = (100 * score) / numberOfQuestions;
+        return scorePercentage;
     }
 
     public void incrementScore() {

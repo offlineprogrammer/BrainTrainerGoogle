@@ -17,6 +17,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.offlineprogrammer.braintrainer.answer.Answer;
 import com.offlineprogrammer.braintrainer.answer.AnswerAdapter;
@@ -135,7 +136,20 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
             @Override
             public void onFinish() {
                 timerTextView.setText("0s");
-                celebratCompletion();
+                if (myGame.getScore()>0) {
+                    Log.i(TAG, "onFinish: The score is " + myGame.getScorePercentage());
+                    celebratCompletion();
+
+                    String sMsg = String.format("You correctly answered %d out of %d questions. Your accuracy rate is %d %%", myGame.getScore(), myGame.getNumberOfQuestions(), myGame.getScorePercentage());
+
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("Well done")
+                            .setMessage(sMsg)
+                            .setNeutralButton("Ok",null)
+                            .show();
+
+                }
+
                 goButton.setImageResource(R.drawable.playagain);
                 myGame.setActive(false);
                 mFirebaseAnalytics.logEvent("theGame_Finished", null);
