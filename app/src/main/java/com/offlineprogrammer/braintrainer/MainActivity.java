@@ -4,6 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -23,10 +27,14 @@ import com.offlineprogrammer.braintrainer.answer.Answer;
 import com.offlineprogrammer.braintrainer.answer.AnswerAdapter;
 import com.offlineprogrammer.braintrainer.answer.AnswerGridItemDecoration;
 import com.offlineprogrammer.braintrainer.answer.OnAnswerListener;
+import com.offlineprogrammer.braintrainer.user.User;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import nl.dionsegijn.konfetti.KonfettiView;
 import nl.dionsegijn.konfetti.models.Shape;
 
@@ -45,6 +53,11 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
     private com.google.android.gms.ads.AdView adView;
     private FirebaseAnalytics mFirebaseAnalytics;
     KonfettiView viewKonfetti;
+    FirebaseHelper firebaseHelper;
+    User m_User;
+    private Disposable disposable;
+    ProgressDialog progressBar;
+
 
 
     @Override
@@ -52,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        firebaseHelper = new FirebaseHelper(getApplicationContext());
         viewKonfetti = findViewById(R.id.viewKonfetti);
         mRecyclerView = findViewById(R.id.answers_recyclerview);
         GridLayoutManager mGridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
@@ -59,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         int largePadding = getResources().getDimensionPixelSize(R.dimen.bt_answer_grid_spacing);
         int smallPadding = getResources().getDimensionPixelSize(R.dimen.bt_answer_grid_spacing_small);
         mRecyclerView.addItemDecoration(new AnswerGridItemDecoration(largePadding, smallPadding));
+        setupProgressBar();
+        getDeviceToken();
 
         prepareData();
 
@@ -81,6 +97,109 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         setupAds();
 
     }
+
+    private void getDeviceToken() {
+        firebaseHelper.getDeviceToken().observeOn(Schedulers.io())
+                //.observeOn(Schedulers.m)
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe");
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onNext(String deviceToken) {
+                        Log.d(TAG, "onNext: " + deviceToken);
+                        getUserData(deviceToken);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete");
+                    }
+                });
+    }
+
+    private void getUserData(String deviceToken) {
+        firebaseHelper.getUserData(deviceToken).observeOn(Schedulers.io())
+                //.observeOn(Schedulers.m)
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe");
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onNext(User user) {
+                        Log.d(TAG, "onNext: " + user.getFirebaseId());
+                        m_User = user;
+                        if (m_User.getFirebaseId()==null) {
+                            saveUser();
+                        } else {
+                            //getKidzData(m_User.getFirebaseId());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete");
+                    }
+                });
+
+    }
+
+    private void saveUser() {
+        firebaseHelper.saveUser().observeOn(Schedulers.io())
+                //.observeOn(Schedulers.m)
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe");
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onNext(User user) {
+                        Log.d(TAG, "onNext: " + user.getFirebaseId());
+                        m_User = user;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dismissProgressBar();
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete");
+                    }
+                });
+    }
+
+
 
     private void setupAds() {
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -248,6 +367,52 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         super.onResume();
         if (adView != null) {
             adView.resume();
+        }
+    }
+
+    private void setupProgressBar() {
+        dismissProgressBar();
+        progressBar = new ProgressDialog(this);
+        progressBar.setMessage("Loading data ...");
+        progressBar.show();
+    }
+
+    private void dismissProgressBar() {
+        dismissWithCheck(progressBar);
+    }
+
+    public void dismissWithCheck(ProgressDialog dialog) {
+        if (dialog != null) {
+            if (dialog.isShowing()) {
+
+                //get the Context object that was used to great the dialog
+                Context context = ((ContextWrapper) dialog.getContext()).getBaseContext();
+
+                // if the Context used here was an activity AND it hasn't been finished or destroyed
+                // then dismiss it
+                if (context instanceof Activity) {
+
+                    // Api >=17
+                    if (!((Activity) context).isFinishing() && !((Activity) context).isDestroyed()) {
+                        dismissWithTryCatch(dialog);
+                    }
+                } else
+                    // if the Context used wasn't an Activity, then dismiss it too
+                    dismissWithTryCatch(dialog);
+            }
+            dialog = null;
+        }
+    }
+
+    public void dismissWithTryCatch(ProgressDialog dialog) {
+        try {
+            dialog.dismiss();
+        } catch (final IllegalArgumentException e) {
+            // Do nothing.
+        } catch (final Exception e) {
+            // Do nothing.
+        } finally {
+            dialog = null;
         }
     }
 
