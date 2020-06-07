@@ -120,13 +120,13 @@ public class TheGame {
     }
 
     public int getScorePercentage(){
-
-        scorePercentage = (100 * score) / numberOfQuestions;
+        scorePercentage = (score / numberOfQuestions);
         return scorePercentage;
     }
 
     public void incrementScore() {
-        this.score++;
+
+        this.score+=100;
     }
 
     public void incrementNumberOfQuestions() {

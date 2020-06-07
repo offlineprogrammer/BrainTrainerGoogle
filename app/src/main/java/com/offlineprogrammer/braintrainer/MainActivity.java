@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         myGame.setNumberOfQuestions(0);
         myGame.setScore(0);
         timerTextView.setText("30s");
-        scoreTextView.setText(Integer.toString(myGame.getScore()) + "/" + Integer.toString(myGame.getNumberOfQuestions()));
+        scoreTextView.setText(Integer.toString(myGame.getScore()));
         newQuestion();
         myGame.setActive(true);
         goButton.setImageResource(R.drawable.question);
@@ -139,8 +139,10 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                 if (myGame.getScore()>0) {
                     Log.i(TAG, "onFinish: The score is " + myGame.getScorePercentage());
                     celebratCompletion();
+                    int numberOfCorrectAnswers = myGame.getScore()/100;
+                    int numberOfWrongAnswers = myGame.getNumberOfQuestions() - numberOfCorrectAnswers;
 
-                    String sMsg = String.format("You correctly answered %d out of %d questions. Your accuracy rate is %d %%", myGame.getScore(), myGame.getNumberOfQuestions(), myGame.getScorePercentage());
+                    String sMsg = String.format(" Score: %d \n Correct Answers: %d \n Wrong Answers: %d \n Your accuracy rate is %d %%", myGame.getScore(), numberOfCorrectAnswers, numberOfWrongAnswers ,  myGame.getScorePercentage());
 
                     new MaterialAlertDialogBuilder(MainActivity.this)
                             .setTitle("Well done")
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
 
         }
         myGame.incrementNumberOfQuestions();
-        scoreTextView.setText(Integer.toString(myGame.getScore()) + "/" + Integer.toString(myGame.getNumberOfQuestions()));
+        scoreTextView.setText(Integer.toString(myGame.getScore()));
         Log.i(TAG, "onAnswerClick: scoreTextView " + scoreTextView.getText());
         newQuestion();
 
