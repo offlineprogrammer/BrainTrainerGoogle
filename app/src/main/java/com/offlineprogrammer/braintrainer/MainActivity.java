@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
     User m_User;
     private Disposable disposable;
     ProgressDialog progressBar;
+    TextView topScoreTextView;
 
 
 
@@ -93,6 +94,10 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         questionTextView.setText("??");
         scoreTextView = findViewById(R.id.scoreTextView);
         scoreTextView.setText("??");
+
+        topScoreTextView = findViewById(R.id.top_score_text);
+        topScoreTextView.setText("5000");
+
 
         setupAds();
 
@@ -145,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                         if (m_User.getFirebaseId()==null) {
                             saveUser();
                         } else {
-                            //getKidzData(m_User.getFirebaseId());
+                            dismissProgressBar();
                         }
                     }
 

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BrainTrainer</string>
     <string name="main_adMob_unit_id">ca-app-pub-7065714443867225/4109685802</string>
+    <string name="page_title">BrainTrainer</string>
+    <string name="topscore">Top</string>
+    <string name="content_description_topscore">Top Score</string>
 </resources>
