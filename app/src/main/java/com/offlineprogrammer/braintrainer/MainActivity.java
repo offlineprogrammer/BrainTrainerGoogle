@@ -11,7 +11,6 @@ import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -27,9 +26,11 @@ import com.offlineprogrammer.braintrainer.answer.Answer;
 import com.offlineprogrammer.braintrainer.answer.AnswerAdapter;
 import com.offlineprogrammer.braintrainer.answer.AnswerGridItemDecoration;
 import com.offlineprogrammer.braintrainer.answer.OnAnswerListener;
+import com.offlineprogrammer.braintrainer.game.HighScoreGame;
 import com.offlineprogrammer.braintrainer.user.User;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 
 import io.reactivex.Observer;
@@ -75,9 +76,6 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         int smallPadding = getResources().getDimensionPixelSize(R.dimen.bt_answer_grid_spacing_small);
         mRecyclerView.addItemDecoration(new AnswerGridItemDecoration(largePadding, smallPadding));
         setupProgressBar();
-        getDeviceToken();
-
-        prepareData();
 
         goButton = findViewById(R.id.goButton);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -96,9 +94,9 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         scoreTextView.setText("??");
 
         topScoreTextView = findViewById(R.id.top_score_text);
-        topScoreTextView.setText("5000");
 
-
+        getDeviceToken();
+        prepareData();
         setupAds();
 
     }
@@ -150,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                         if (m_User.getFirebaseId()==null) {
                             saveUser();
                         } else {
+                            setTopScoreTextView();
                             dismissProgressBar();
                         }
                     }
@@ -167,6 +166,19 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
 
     }
 
+    private void setTopScoreTextView() {
+        if (m_User.getHighScoreGame() != null) {
+            Log.i(TAG, "onNext: highScoreGame " + m_User.getHighScoreGame().getScore());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    topScoreTextView.setText(m_User.getHighScoreGame().getScore().toString());
+                }
+            });
+        }
+    }
+
+
     private void saveUser() {
         firebaseHelper.saveUser().observeOn(Schedulers.io())
                 //.observeOn(Schedulers.m)
@@ -182,12 +194,8 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                     public void onNext(User user) {
                         Log.d(TAG, "onNext: " + user.getFirebaseId());
                         m_User = user;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dismissProgressBar();
-                            }
-                        });
+                        setTopScoreTextView();
+                        dismissProgressBar();
 
 
                     }
@@ -267,9 +275,24 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                     int numberOfWrongAnswers = myGame.getNumberOfQuestions() - numberOfCorrectAnswers;
 
                     String sMsg = String.format(" Score: %d \n Correct Answers: %d \n Wrong Answers: %d \n Your accuracy rate is %d %%", myGame.getScore(), numberOfCorrectAnswers, numberOfWrongAnswers ,  myGame.getScorePercentage());
+                    String sTitle = "Well done";
+
+                    HighScoreGame userHighScoreGame = new HighScoreGame(
+                            Calendar.getInstance().getTime(),
+                            myGame.getScore(),
+                            numberOfCorrectAnswers,
+                            numberOfWrongAnswers
+                    );
+                    if(m_User.getHighScoreGame().getScore()<= myGame.getScore()){
+                        saveUserGame(userHighScoreGame);
+                        m_User.setHighScoreGame(userHighScoreGame);
+                        setTopScoreTextView();
+                        sTitle = "New High Score!!";
+                        mFirebaseAnalytics.logEvent(String.format("high_score_%d",myGame.getScore()) , null);
+                    }
 
                     new MaterialAlertDialogBuilder(MainActivity.this)
-                            .setTitle("Well done")
+                            .setTitle(sTitle)
                             .setMessage(sMsg)
                             .setNeutralButton("Ok",null)
                             .show();
@@ -284,6 +307,16 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
             }
         }.start();
 
+    }
+
+    private void saveUserGame(HighScoreGame userHighScoreGame) {
+        firebaseHelper.saveUserGame(userHighScoreGame, m_User.getFirebaseId()).observeOn(Schedulers.io())
+                .subscribe(() -> {
+                    Log.i(TAG, "updateRewardImage: completed");
+                    // handle completion
+                }, throwable -> {
+                    // handle error
+                });
     }
 
     private void newQuestion() {

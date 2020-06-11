@@ -18,8 +18,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.offlineprogrammer.braintrainer.game.HighScoreGame;
 import com.offlineprogrammer.braintrainer.user.User;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,19 +86,21 @@ public class FirebaseHelper {
 
     Observable<User> saveUser() {
         return Observable.create((ObservableEmitter<User> emitter) -> {
-            Map<String, Object> user = new HashMap<>();
-            user.put("deviceToken", m_User.getDeviceToken());
+            m_User.setDateCreated(Calendar.getInstance().getTime());
+            m_User.setHighScoreGame(new HighScoreGame(Calendar.getInstance().getTime(),
+                    0,
+                    0,
+                    0));
             FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-
             if (currentUser != null) {
-                user.put("userId", currentUser.getEmail());
+                m_User.setUserId(currentUser.getEmail());
 
             } else {
-
-                user.put("userId", "guest");
+                m_User.setUserId("guest");
             }
+
             m_db.collection("users")
-                    .add(user)
+                    .add(m_User)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -115,5 +119,29 @@ public class FirebaseHelper {
 
         });
     }
+
+    public Completable  saveUserGame(HighScoreGame highScoreGame, String userFireStoreId) {
+
+        return Completable.create( emitter -> {
+            Map<String, Object> gameValues = highScoreGame.toMap();
+            DocumentReference selectedUserRef = m_db.collection("users").document(userFireStoreId);
+            selectedUserRef.update("highScoreGame", gameValues)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i(TAG, "DocumentSnapshot successfully updated!");
+                            emitter.onComplete();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.i(TAG, "Error updating document", e);
+                            emitter.onError(e);
+                        }
+                    });
+        });
+    }
+
 
 }
