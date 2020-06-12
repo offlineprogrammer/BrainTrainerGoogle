@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.offlineprogrammer.braintrainer.answer.Answer;
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
     private Disposable disposable;
     ProgressDialog progressBar;
     TextView topScoreTextView;
+    MaterialToolbar topAppBar;
 
 
 
@@ -92,6 +95,18 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         questionTextView.setText("??");
         scoreTextView = findViewById(R.id.scoreTextView);
         scoreTextView.setText("??");
+        topAppBar = findViewById(R.id.topAppBar);
+        topAppBar.setOnMenuItemClickListener(new MaterialToolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                if(item.getItemId()==R.id.configure_menu)
+                {
+                    // do something
+                }
+                return false;
+            }
+        });
 
         topScoreTextView = findViewById(R.id.top_score_text);
 

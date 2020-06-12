@@ -4,4 +4,6 @@
     <string name="page_title">BrainTrainer</string>
     <string name="topscore">Top</string>
     <string name="content_description_topscore">Top Score</string>
+    <string name="content_description_configure">Game Configuration</string>
+    <string name="configure">Configure</string>
 </resources>
