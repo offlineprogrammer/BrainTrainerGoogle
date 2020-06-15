@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
             @Override
             public void onClick(View view) {
                 if (myGame == null || !myGame.isActive()) {
-                    playTheGame(sOperation);
+                    playTheGame(m_User.getGameOperation());
                 }
             }
         });
@@ -114,17 +114,22 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                     String[] listItems = {"+", "Random"};
                     int selectedOperation = 0;
 
+                    if (m_User.getGameOperation() != null){
 
-                    if (sOperation=="+") {
+
+                    if (String.valueOf(m_User.getGameOperation()).equals("+")) {
                         selectedOperation=0;
                     } else {
                         selectedOperation=1;
+                    }
+                    } else {
+                        selectedOperation=0;
                     }
                     new MaterialAlertDialogBuilder(MainActivity.this)
                             .setSingleChoiceItems(listItems,selectedOperation,new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int arg1) {
-                                    sOperation = listItems[arg1].toString();
+                                    m_User.setGameOperation(listItems[arg1].toString());
                                     //dialogInterface.dismiss();
                                 }
                             })
@@ -132,14 +137,14 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
                                 public void onClick(DialogInterface dialog, int which) {
-                                    firebaseHelper.updateGameOperation(sOperation, m_User.getFirebaseId())
+                                    firebaseHelper.updateGameOperation(m_User.getGameOperation(), m_User.getFirebaseId())
                                             .subscribe(() -> {
                                                 Log.i(TAG, "onClick: Updating Op is complete");
                                                 // handle completion
                                             }, throwable -> {
                                                 // handle error
                                             });
-                                    playTheGame(sOperation);
+                                    playTheGame(m_User.getGameOperation());
                                 }
                             })
                             .show();
@@ -216,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                             saveUser();
                         } else {
                             setTopScoreTextView();
+                            //setGameOperation();
                             dismissProgressBar();
                         }
                     }
@@ -231,6 +237,18 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                     }
                 });
 
+    }
+
+    private void setGameOperation() {
+        if (m_User.getGameOperation() != null) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    topScoreTextView.setText(m_User.getHighScoreGame().getScore().toString());
+                }
+            });
+        }
     }
 
     private void setTopScoreTextView() {

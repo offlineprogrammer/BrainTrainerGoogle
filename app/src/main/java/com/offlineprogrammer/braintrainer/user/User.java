@@ -13,6 +13,7 @@ public class User {
     private String userId;
     private Date dateCreated;
     private HighScoreGame highScoreGame;
+    private String gameOperation;
 
     public User(String deviceToken) {
         this.deviceToken = deviceToken;
@@ -29,6 +30,7 @@ public class User {
         result.put("highScoreGame", this.highScoreGame.toMap());
         result.put("userId", this.userId);
         result.put("dateCreated", this.dateCreated);
+        result.put("gameOperation", this.gameOperation);
         return result;
     }
 
@@ -71,5 +73,13 @@ public class User {
 
     public void setHighScoreGame(HighScoreGame highScoreGame) {
         this.highScoreGame = highScoreGame;
+    }
+
+    public void setGameOperation(String gameOperation) {
+        this.gameOperation = gameOperation;
+    }
+
+    public String getGameOperation() {
+        return gameOperation;
     }
 }
