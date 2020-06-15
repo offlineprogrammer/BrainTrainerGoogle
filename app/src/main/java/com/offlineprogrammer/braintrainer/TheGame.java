@@ -6,6 +6,7 @@ import java.util.Random;
 public class TheGame {
 
     private String mOperation;
+    private String mathOp;
     private boolean isActive = false;
     public int locationOfCorrectAnswer;
     public  int a;
@@ -19,15 +20,15 @@ public class TheGame {
         mOperation=sOperation;
     }
 
-    public  int doMath(int a, int b){
+    public  int doMath(int a, int b, String sOperation){
         int result = 0;
-        if (mOperation.equals("+")) {
+        if (sOperation.equals("+")) {
             result = a+b;
-        } else if (mOperation.equals("-")) {
+        } else if (sOperation.equals("-")) {
             result = a-b;
-        } else if (mOperation.equals("*")) {
+        } else if (sOperation.equals("*")) {
             result = a*b;
-        } else  if (mOperation.equals("/")) {
+        } else  if (sOperation.equals("/")) {
             result = a/b;
         }
         return result;
@@ -35,6 +36,12 @@ public class TheGame {
 
 
     public ArrayList<Integer> setupGame(){
+        mathOp=mOperation;
+        if (mOperation.equals("Random")) {
+            String[] list = {"+", "-", "*", "/"};
+            Random r = new Random();
+            mathOp = list[r.nextInt(list.length)];
+        }
         Random rand = new Random();
         a = rand.nextInt(21);
         b = rand.nextInt(21);
@@ -43,11 +50,11 @@ public class TheGame {
         answers.clear();
         for (int i=0; i<4;i++){
             if(i== locationOfCorrectAnswer){
-                answers.add(doMath(a,b));
+                answers.add(doMath(a,b,mathOp));
             } else {
-                int wrongAnswer = getRandom(a,b);
-                while (wrongAnswer == doMath(a,b)){
-                    wrongAnswer = getRandom(a,b);;
+                int wrongAnswer = getRandom(a,b,mathOp);
+                while (wrongAnswer == doMath(a,b,mathOp)){
+                    wrongAnswer = getRandom(a,b,mathOp);
                 }
                 answers.add(wrongAnswer);
             }
@@ -62,17 +69,17 @@ public class TheGame {
 
 
 
-    public  int getRandom(int a, int b){
+    public  int getRandom(int a, int b, String sOperation){
         int result = 41;
 
 
 
         Random rand = new Random();
-        if (mOperation.equals("+")) {
+        if (sOperation.equals("+")) {
             result =rand.nextInt(41);
-        } else if (mOperation.equals("-")) {
+        } else if (sOperation.equals("-")) {
             result =rand.nextInt(41 + 20) - 20;;
-        } else if (mOperation.equals("*")) {
+        } else if (sOperation.equals("*")) {
             if (a == 0) {
                 a = 1;
             }
@@ -80,7 +87,7 @@ public class TheGame {
                 b =1;
             }
             result =rand.nextInt(2*a*b);
-        } else  if (mOperation.equals("/")) {
+        } else  if (sOperation.equals("/")) {
             result =rand.nextInt(41);
         }
         return result;
@@ -88,7 +95,7 @@ public class TheGame {
 
 
     public String getOperation() {
-        return mOperation;
+        return mathOp;// mOperation;
     }
 
     public void setOperation(String mOperation) {

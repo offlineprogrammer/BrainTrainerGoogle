@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -16,6 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
+
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
@@ -23,6 +27,7 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialDialogs;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.offlineprogrammer.braintrainer.answer.Answer;
 import com.offlineprogrammer.braintrainer.answer.AnswerAdapter;
@@ -31,9 +36,12 @@ import com.offlineprogrammer.braintrainer.answer.OnAnswerListener;
 import com.offlineprogrammer.braintrainer.game.HighScoreGame;
 import com.offlineprogrammer.braintrainer.user.User;
 
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -62,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
     ProgressDialog progressBar;
     TextView topScoreTextView;
     MaterialToolbar topAppBar;
+    String sOperation = "+";
 
 
 
@@ -85,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
             @Override
             public void onClick(View view) {
                 if (myGame == null || !myGame.isActive()) {
-                    playTheGame();
+                    playTheGame(sOperation);
                 }
             }
         });
@@ -102,7 +111,33 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
 
                 if(item.getItemId()==R.id.configure_menu)
                 {
-                    // do something
+                    String[] listItems = {"+", "Random"};
+                    int selectedOperation = 0;
+
+
+                    if (sOperation=="+") {
+                        selectedOperation=0;
+                    } else {
+                        selectedOperation=1;
+                    }
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setSingleChoiceItems(listItems,selectedOperation,new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int arg1) {
+                                    sOperation = listItems[arg1].toString();
+                                    showToast(listItems[arg1].toString());
+                                    //dialogInterface.dismiss();
+                                }
+                            })
+                            .setTitle("Set the math operation")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int which) {
+                                    playTheGame(sOperation);
+                                }
+                            })
+                            .show();
+
                 }
                 return false;
             }
@@ -114,6 +149,17 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         prepareData();
         setupAds();
 
+    }
+
+    private Toast toast;
+
+    private void showToast(String message) {
+        if (toast != null) {
+            toast.cancel();
+            toast = null;
+        }
+        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private void getDeviceToken() {
@@ -256,9 +302,9 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
         //.streamFor(300, 5000L);
     }
 
-    private void playTheGame() {
+    private void playTheGame(String operation) {
         mFirebaseAnalytics.logEvent("play_theGame", null);
-        myGame = new TheGame("+");
+        myGame = new TheGame(operation);
         myGame.setNumberOfQuestions(0);
         myGame.setScore(0);
         timerTextView.setText("30s");
