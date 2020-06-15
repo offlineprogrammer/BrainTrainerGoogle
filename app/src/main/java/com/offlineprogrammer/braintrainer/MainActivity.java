@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int arg1) {
                                     sOperation = listItems[arg1].toString();
-                                    showToast(listItems[arg1].toString());
                                     //dialogInterface.dismiss();
                                 }
                             })
@@ -133,6 +132,13 @@ public class MainActivity extends AppCompatActivity implements OnAnswerListener 
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
                                 public void onClick(DialogInterface dialog, int which) {
+                                    firebaseHelper.updateGameOperation(sOperation, m_User.getFirebaseId())
+                                            .subscribe(() -> {
+                                                Log.i(TAG, "onClick: Updating Op is complete");
+                                                // handle completion
+                                            }, throwable -> {
+                                                // handle error
+                                            });
                                     playTheGame(sOperation);
                                 }
                             })

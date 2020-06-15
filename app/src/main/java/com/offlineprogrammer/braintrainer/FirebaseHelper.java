@@ -144,4 +144,25 @@ public class FirebaseHelper {
     }
 
 
+    public Completable updateGameOperation(String sOperation, String userFireStoreId) {
+        return Completable.create( emitter -> {
+
+            DocumentReference selectedUserRef = m_db.collection("users").document(userFireStoreId);
+            selectedUserRef.update("gameOperation", sOperation)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i(TAG, "DocumentSnapshot successfully updated!");
+                            emitter.onComplete();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.i(TAG, "Error updating document", e);
+                            emitter.onError(e);
+                        }
+                    });
+        });
+    }
 }
