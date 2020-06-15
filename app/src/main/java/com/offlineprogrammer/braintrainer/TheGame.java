@@ -36,25 +36,47 @@ public class TheGame {
 
 
     public ArrayList<Integer> setupGame(){
-        mathOp=mOperation;
+        int i11;
+        int i12;
+        mathOp = mOperation;
         if (mOperation.equals("Random")) {
             String[] list = {"+", "-", "*", "/"};
             Random r = new Random();
             mathOp = list[r.nextInt(list.length)];
+            mathOp = "-";
         }
         Random rand = new Random();
-        a = rand.nextInt(21);
-        b = rand.nextInt(21);
-        locationOfCorrectAnswer = rand.nextInt(4);
-       // sumTextView.setText(String.format("%s %s %s", Integer.toString(a), myGame.getOperation() , Integer.toString(b)));
-        answers.clear();
-        for (int i=0; i<4;i++){
-            if(i== locationOfCorrectAnswer){
-                answers.add(doMath(a,b,mathOp));
+        if (mathOp.equals("/")) {
+            i11 = rand.nextInt(14) + 1;
+            i12 = rand.nextInt(6);
+            b = i12 + 1;
+            a = i11 * b;
+        } else if (mathOp.equals("-")) {
+            i11 = rand.nextInt(21) + 1;
+            i12 = rand.nextInt(21);
+            int i20 = i12 + 1;
+            if (i11 > i20) {
+                a = i11;
+                b = i20;
+
             } else {
-                int wrongAnswer = getRandom(a,b,mathOp);
-                while (wrongAnswer == doMath(a,b,mathOp)){
-                    wrongAnswer = getRandom(a,b,mathOp);
+                a = i20;
+                b = i11;
+            }
+        } else {
+            a = rand.nextInt(21);
+            b = rand.nextInt(21);
+        }
+        locationOfCorrectAnswer = rand.nextInt(4);
+        // sumTextView.setText(String.format("%s %s %s", Integer.toString(a), myGame.getOperation() , Integer.toString(b)));
+        answers.clear();
+        for (int i = 0; i < 4; i++) {
+            if (i == locationOfCorrectAnswer) {
+                answers.add(doMath(a, b, mathOp));
+            } else {
+                int wrongAnswer = getRandom(a, b, mathOp);
+                while (wrongAnswer == doMath(a, b, mathOp)) {
+                    wrongAnswer = getRandom(a, b, mathOp);
                 }
                 answers.add(wrongAnswer);
             }
@@ -78,7 +100,7 @@ public class TheGame {
         if (sOperation.equals("+")) {
             result =rand.nextInt(41);
         } else if (sOperation.equals("-")) {
-            result =rand.nextInt(41 + 20) - 20;;
+            result = rand.nextInt(41 + 20) - 20;
         } else if (sOperation.equals("*")) {
             if (a == 0) {
                 a = 1;
