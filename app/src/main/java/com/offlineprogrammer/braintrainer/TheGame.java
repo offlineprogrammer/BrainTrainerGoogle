@@ -43,7 +43,6 @@ public class TheGame {
             String[] list = {"+", "-", "*", "/"};
             Random r = new Random();
             mathOp = list[r.nextInt(list.length)];
-            mathOp = "-";
         }
         Random rand = new Random();
         if (mathOp.equals("/")) {
